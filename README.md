@@ -21,8 +21,8 @@ You can pass element attributes in the tag itself, or set default attributes in 
 generates markup; the styling is up to you. 
 
 It integrates with (and requires) [jekyll-svg-inliner](https://github.com/sdumetz/jekyll-inline-svg)
-to inline your SVGs for you. If you don't use inline SVGs even though you should, it sets your file
-as an img src=. 
+to inline your SVGs for you. If you don't use inline SVGs (even though you should), it sets your file
+as an img src attribute (with alt text!).
 
 I use it on [my portfolio](https://robert-buchberger.com/projects.html)
 ([ github ](https://github.com/rbuchberger/robert-buchberger.com)) if you want to see an example.
@@ -40,28 +40,32 @@ group :jekyll_plugins do
 end
 ```
 
-in your \_config.yml there are a few settings you should add:
+in your \_config.yml there are a few settings to add. Here's an example:
 ```
 # _config.yml
 
 icon_list:
-  default_path: /images/here/ # Default directory for your icons
-  defaults: # HTML attributes to add to your various elements. 
+  default_path: /images/here/
+  defaults:
     ul: class="icon-list"
     li: class="icon-list-item"
     svg: overflow="visible" class="icon"
-    img: class="wish-i-could-join-the-inline-svg-master-race"
+    img: class="wish-i-had-inline-svgs"
 
 svg: 
   optimize: true # Optional setting, tells svg-inliner to clean up your SVGs.
 
 ```
 
+Basically all this plugin's settings are set under `icon_list:` in your config file. 
+
+* `default_path:`- Prepended to the filenames specified in your data file.
+* `defaults:` - HTML attributes to include with your markup.
+
 create the file:
 `/_data/icon_list.yml`
 
 And fill it with your icons in the following format: 
-
 
 ```
 # /_data/icon_list.yml
@@ -127,7 +131,7 @@ welcome.
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/jekyll_icon_list.
+Bug reports and pull requests are welcome. https://github.com/rbuchberger/jekyll_icon_list
 
 ## License
 
