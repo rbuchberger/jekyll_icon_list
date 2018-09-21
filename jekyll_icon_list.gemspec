@@ -7,10 +7,10 @@ Gem::Specification.new do |spec|
   spec.name          = "jekyll_icon_list"
   spec.version       = JekyllIconList::VERSION
   spec.authors       = ["Robert Buchberger"]
-  spec.email         = ["rbuchberger@gmail.com"]
+  spec.email         = ["robert@robert-buchberger.com"]
 
   spec.summary       = "Builds lists of Icons and labels"
-  # spec.homepage      = "Put your gem's website or public repo URL here."
+  spec.homepage      = "https://github.com/rbuchberger/jekyll_icon_list"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
