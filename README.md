@@ -33,7 +33,8 @@ I use it on [my portfolio](https://robert-buchberger.com/projects.html)
 (I don't have it hosted on rubygems yet. It will be once I've cleaned it up a bit further. .)
 
 ```ruby
-jekyll
+# Gemfile
+
 group :jekyll_plugins do
   gem 'jekyll_icon_list', git: 'https://github.com/rbuchberger/jekyll_icon_list.git'
 end
@@ -42,6 +43,7 @@ end
 in your \_config.yml there are a few settings you should add:
 ```
 # _config.yml
+
 icon_list:
   default_path: /images/here/ # Default directory for your icons
   defaults: # HTML attributes to add to your various elements. 
