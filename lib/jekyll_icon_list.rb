@@ -43,7 +43,7 @@ module JekyllIconList
       }
 
       @attributes.each_key do |k|
-        defaults = settings['defaults'][k].dup if settings['defaults']
+        defaults = settings['defaults'][k].dup if settings['defaults'][k]
         @attributes[k] = defaults if defaults
       end
 
