@@ -1,34 +1,117 @@
 # JekyllIconList
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/jekyll_icon_list`. To experiment with that code, run `bin/console` for an interactive prompt.
+**This plugin works, but I haven't had time to test it very thoroughly. Use with caution, and please
+report bugs if you find them.**
 
-TODO: Delete this and the text above, and describe your gem
+## What is it? 
 
-## Installation
+It's a jekyll tag that lets you build unordered lists of items that follow the "Icon + label"
+format. 
 
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'jekyll_icon_list'
+Write a tag like this: 
+```
+{% iconlist rails bootstrap heroku aws %}
 ```
 
-And then execute:
+Add a little CSS, and you have something like this: 
 
-    $ bundle
+![imgur screenshot]( https://i.imgur.com/9m6qCRB.png )
 
-Or install it yourself as:
+You can pass element attributes in the tag itself, or set default attributes in the config. It only
+generates markup; the styling is up to you. 
 
-    $ gem install jekyll_icon_list
+It integrates with (and requires) [jekyll-svg-inliner](https://github.com/sdumetz/jekyll-inline-svg)
+to inline your SVGs for you.
 
+I use it on (my portfolio)[https://robert-buchberger.com/projects.html],
+((github)[https://github.com/rbuchberger/robert-buchberger.com]) if you want to seen an example.
+
+## Installation and Setup
+
+(I don't have it hosted on rubygems yet. It will be once I've cleaned it up a bit further. .)
+
+```ruby
+jekyll
+group :jekyll_plugins do
+  gem 'jekyll_icon_list', git: 'https://github.com/rbuchberger/jekyll_icon_list.git'
+end
+```
+
+in your \_config.yml there are a few settings you should add:
+```
+icon_list:
+  default_path: /images/here/ # Default directory for your icons
+  defaults: # HTML attributes to add to your various elements. 
+    ul: class="icon-list"
+    li: class="icon-list-item"
+    svg: overflow="visible" class="icon"
+    img: class="wish-i-could-join-the-inline-svg-master-race"
+
+svg: 
+  optimize: true # Optional setting, tells svg-inliner to optimize your SVGs.
+
+```
+
+create the file:
+`/_data/icon_list.yml`
+
+And fill it with your icons in the following format: 
+
+You'll obviously need some icons. I hear you can find them on the internet. The default directory
+setting in config.yml will be prepended to your filenames. 
+
+```
+example_shortname:
+  icon: example_logo.svg 
+  label: My Nicely Formatted, Long Name
+example2:
+  icon: sloppy.svg
+  label: Here's Another Label I Don't Have To Type Again
+```
+
+You'll probably want some css. Here's an example that should get you close to the screenshot:
+
+```css
+
+ul.icon-list {
+  margin: 0;
+  font-size: 1.1em;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  list-style: none;
+}
+
+ul.icon-list li {
+    display: flex;
+    align-items: center;
+    margin: 0 .5em;
+}
+
+.icon {
+  height: 1em;
+  margin-right: .2em;
+}
+
+```
 ## Usage
 
-TODO: Write usage instructions here
+Basic usage: 
+```
+{% iconlist example_shortname example2 %}
+```
 
-## Development
+It looks for a space separated list of the short names in the icon_list.yml file, and generates the
+markup from that. You can specify attributes to add with --(element) arguments: 
 
-After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+{% iconlist example example2 --ul class="stumpy" --li class="mopey" %}
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+Available arguments: --ul, --li, --img, --svg
+
+It will very simply concatenate your arguments with your defaults set in \_config.yml. It's not
+smart enough to handle the same attribute being set twice, so for example you can't add classes in
+both the defaults and as an argument in the tag. If that's a feature you want, pull requests are
+welcome. 
 
 ## Contributing
 
