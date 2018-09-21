@@ -28,54 +28,76 @@ module JekyllIconList
       # ignoring whitespace. This will return a space-separated string of items.
       item_regex = /^([^(\-\-)]*)/x
 
-      @items = raw_input.match(item_regex)[0].split(' ')  # Array
+      @items = raw_input.match(item_regex)[0].split(' ') # Array
 
       # This regex grabs anything which is preceded by '--' and one of our
       # attribute types, up until the next instance of '--', ignoring
       # whitespace.
       attribute_regex = /\-\-([ul|li|img|svg][^(\-\-)]*)/x
 
-      @attributes = {}
+      @attributes = {
+        'ul' => '',
+        'li' => '',
+        'img' => '',
+        'svg' => ''
+      }
 
-      # This formats, adds defaults, and adds them to the attributes hash:
+      @attributes.each_key do |k|
+        defaults = settings['defaults'][k].dup if settings['defaults']
+        @attributes[k] = defaults if defaults
+      end
+
       raw_input
         .scan(attribute_regex) # Array of single-item arrays
-        .map { |t| t[0].strip } # Array of strings with whitespace removed
-        .each do |t|
-          defaults = settings['defaults'][key] if settings['defaults']
-          key = t[/^\w+/]
-          value = t.gsub(/^\w+ /, '')
-          value += (' ' + defaults) if defaults
+        .map { |attribute| attribute[0].strip } # Array of strings with whitespace removed
+        .each do |attribute| # each element is something like 'ul class="asdf" id="whatever"'
+          key = attribute[/^\w+/] # Grab The first word, which is the key (came after --)
+          value = attribute.gsub(/^\w+ /, '') # Strip out the key, leaving us the attributes to pass on
+          value = value.prepend(' ') unless @attributes[key].empty? # Add space if there are defaults
 
-          @attributes[key] = value
+          @attributes[key] << value
         end
+
     end
 
     def generate_image(icon_data, settings, context)
-      if settings['icon_path']
-        icon_filename = icon_data['icon'].prepend settings['icon_path']
+      # This line gave me an interesting bug: jekyll data files are apparently
+      # persistent between tag calls. If I had the same item multiple times on a
+      # page (which is the entire point of this plugin), the default path would
+      # be prepended each time. .dup is very important!
+      icon_filename = icon_data['icon'].dup
+
+      if settings['default_path']
+        icon_location = icon_filename.prepend settings['default_path']
+      else
+        icon_location = icon_filename
       end
 
       file_ext_regex = /\.([a-zA-Z]{1,4})\z/
       file_ext = file_ext_regex.match(icon_filename)[1]
 
       if file_ext == 'svg'
-        # Jekyll::Tags::JekyllInlineSvg.new('svg', icon).render(context)
-        # Liquid::Tag.parse('svg', icon, @tokens, Liquid::ParseContext.new).render
-        "<img src=\"#{icon_filename}\" alt=\"icon for #{icon_data['label']}\" #{@attributes['svg']}>"
+        element = Jekyll::Tags::JekyllInlineSvg.send(
+          :new,
+          'svg',
+          "#{icon_location} #{@attributes['svg']}",
+          @tokens
+        ).render(context)
       else
-        "<img src=\"#{icon_filename}\" alt=\"icon for #{icon_data['label']}\" #{@attributes['img']}>"
+        element = "<img src=\"#{icon_location}\" alt=\"icon for #{icon_data['label']}\" #{@attributes['img']}>"
       end
+
+      element << "\n"
     end
 
     def render(context)
       # Get site settings
       site = context.registers[:site]
       raise 'could not load site data' unless site
-      
+
       # get iconlist settings
       settings = site.config['icon_list']
-      raise 'could not load icon_list settings in config.yml' unless settings
+
       # get data file
       icon_data = site.data['icon_list']
       raise 'could not load _data/icon_list.yml' unless icon_data
@@ -86,18 +108,16 @@ module JekyllIconList
       list = "<ul #{@attributes['ul']}>\n"
 
       @items.each do |i|
-        
         raise "Could not find item named #{i} in _/data/icon_data.yml" unless icon_data[i]
 
         icon = generate_image(icon_data[i], settings, context)
         label = icon_data[i]['label']
-        list += "<li #{@attributes['li']}>#{icon}#{label}</li>\n"
+        list << "<li #{@attributes['li']}>#{icon}#{label}</li>\n"
       end
 
-      list += "</ul>\n"
+      list << "</ul>\n"
     end
   end
-
 end
 
 Liquid::Template.register_tag('iconlist', JekyllIconList::IconList)
