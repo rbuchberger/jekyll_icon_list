@@ -39,7 +39,7 @@ module JekyllIconList
       attributes = initialize_attributes
 
       attributes.each_key do |k|
-        if @li_settings['defaults'][k]
+        if @li_settings['defaults'] && @li_settings['defaults'][k]
           attributes[k] = @li_settings['defaults'][k].dup
         end
       end
@@ -90,7 +90,7 @@ module JekyllIconList
       # multiple times on a page (which is the entire point of this plugin), the
       # default path would be prepended each time. .dup is very important!
       icon_data_filename = this_item_data['icon'].dup
-      default_path = @li_settings['default_path']
+      default_path = @li_settings['default_path'] || 'images/icons/'
 
       if icon_data_filename && default_path
         default_path + icon_data_filename
@@ -149,10 +149,9 @@ module JekyllIconList
       site_settings = @context.registers[:site]
       raise 'could not load website configuration data' unless site_settings
 
-      @li_settings = site_settings.config['icon_list']
+      @li_settings = site_settings.config['icon_list'] || {}
 
-      all_items_data = site_settings.data['icon_list']
-      raise 'could not load _data/icon_list.yml' unless all_items_data
+      all_items_data = site_settings.data['icon_list'] || {}
 
       @attributes = attribute_defaults
 
