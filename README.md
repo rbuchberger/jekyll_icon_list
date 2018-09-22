@@ -41,6 +41,13 @@ group :jekyll_plugins do
 end
 ```
 
+```yml
+# _config.yml
+
+plugins: 
+  -jekyll_icon_list
+```
+
 You'll also want some css. Here's an example that should get you close to the screenshot:
 ```css
 
@@ -78,7 +85,15 @@ By default, with no configuration:
 
 * It will look for icons in images/icons/ with the same name as your shortname, grabbing the first result which matches (shortname).*
 
-* It will take your shortname, swap dashes for spaces, and titleize it for the label. (ruby-on-rails => Ruby On Rails)
+* It will take your shortname, swap dashes for spaces, and titleize it for the label.
+
+So for example, if you write `{% icon_list ruby-on-rails %}`, with `ruby-on-rails.png` located in
+`images/icons/`, it will generate markup like this:
+```
+<ul>
+  <li><img src="/images/icons/ruby-on-rails.png">Ruby On Rails</li>
+<ul>
+```
 
 You can specify attributes to add with --(element) arguments: 
 ```
@@ -88,6 +103,7 @@ You can specify attributes to add with --(element) arguments:
 
 Available arguments:
 `--ul, --li, --img, --svg, --a`
+These will overwrite any global defaults you have set.
 
 in your \_config.yml there are a few optional settings you can add. Here's an example:
 ```
@@ -107,10 +123,11 @@ svg:
 
 ```
 
-* `default_path:`- Prepended to the filenames specified in your data file. No leading /
-* `defaults:` - Optional HTML attributes to include with your markup.
+* `default_path:`- Prepended to the filenames specified in your data file.
+* `defaults:` - Optional HTML attributes to include with your markup, if none are specified in the
+    tag.
 
-If the icon filenames and labels don't work for you, create:
+If the default filenames and labels don't work for you, create:
 `/_data/icon_list.yml`
 
 And fill it with your icons in the following format: 
@@ -132,12 +149,6 @@ internet.
 
 If you set a url: for an item in the data file, it'll wrap the li's contents in
 an anchor tag for you.
-
-It will very simply concatenate your --parameters passed in the tag and the
-defaults set in \_config.yml. It's not smart enough to handle the same
-attribute being set twice, so for example you can't add classes in both the
-defaults and as an argument in the tag. If that's a feature you want, pull
-requests are welcome. 
 
 ## Contributing
 

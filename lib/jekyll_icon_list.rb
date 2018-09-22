@@ -58,10 +58,7 @@ module JekyllIconList
 
       raw_input_array.each do |a|
         key = a.shift
-        value = a.join ' '
-        value = value.prepend(' ') unless @attributes[key].empty?
-
-        @attributes[key] << value
+        @attributes[key] = a.join ' '
       end
     end
 
