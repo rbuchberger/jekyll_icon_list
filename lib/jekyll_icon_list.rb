@@ -87,14 +87,14 @@ module JekyllIconList
       # multiple times on a page (which is the entire point of this plugin), the
       # default path would be prepended each time. .dup is very important!
       icon_data_filename = this_item_data['icon'].dup
-      default_path = @li_settings['default_path'] || 'images/icons/'
+      default_path = @li_settings['default_path'] || '/images/icons/'
 
       if icon_data_filename && default_path
         default_path + icon_data_filename
       elsif icon_data_filename
         icon_data_filename
       elsif default_path
-        f = Dir.glob(default_path + item_shortname + '.*')
+        f = Dir.glob(Dir.pwd + default_path + item_shortname + '.*')
         unless f.any?
           raise "No icon for #{item_shortname} set in _data/icon_list.yml"\
           ", and default filename #{default_path + item_shortname}.* not found"
