@@ -10,7 +10,7 @@ format.
 
 Write a tag like this: 
 ```
-{% iconlist rails bootstrap heroku aws %}
+{% icon_list rails bootstrap heroku aws %}
 ```
 
 Add some icons, configuration, and a little CSS, and you get something like this: 
@@ -118,7 +118,7 @@ ul.icon-list li {
 
 Basic usage: 
 ```
-{% iconlist example_shortname example2 %}
+{% icon_list example_shortname example2 %}
 ```
 
 
@@ -146,7 +146,7 @@ Example:
 
 You can specify attributes to add with --(element) arguments: 
 ```
-{% iconlist example example2 example3 --ul class="stumpy" --li class="mopey" %}
+{% icon_list example example2 example3 --ul class="stumpy" --li class="mopey" %}
 
 ```
 
