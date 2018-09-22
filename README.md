@@ -31,13 +31,11 @@ as an img src attribute (with alt text!).
 
 ## Installation
 
-(I don't have it hosted on rubygems yet. It will be once I've cleaned it up a bit further. .)
-
 ```ruby
 # Gemfile
 
 group :jekyll_plugins do
-  gem 'jekyll_icon_list', git: 'https://github.com/rbuchberger/jekyll_icon_list.git'
+  gem 'jekyll_icon_list'
 end
 ```
 
