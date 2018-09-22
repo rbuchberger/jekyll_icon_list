@@ -119,7 +119,7 @@ module JekyllIconList
     def build_li(this_item_data, icon_location, label)
       li = "  <li #{@attributes['li']}>"
       if this_item_data && this_item_data['url']
-        li << "<a href=\"#{this_item_data['url']}\" #{@attributes['a']}"
+        li << "<a href=\"#{this_item_data['url']}\" #{@attributes['a']}>"
       end
       li << build_image_tag(icon_location)
       li << label
