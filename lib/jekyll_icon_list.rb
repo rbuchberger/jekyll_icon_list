@@ -14,11 +14,6 @@ module JekyllIconList
   # --ul, --li, --svg, and --img. Their arguments are inserted into their
   # respective HTML elements upon render.
   class IconList < Liquid::Tag
-    # \.     -  dot
-    # [\w]+  -  One or more letters, numbers, or underscores
-    # $      -  End of string
-    FILE_EXT_REGEX = /\.([\w]+)\z/
-
     def initialize(tag_name, raw_input, tokens)
       @raw_input = raw_input
       @tokens = tokens
@@ -56,14 +51,11 @@ module JekyllIconList
 
       @item_shortnames = raw_input_array.shift
 
-      raw_input_array.each do |a|
-        key = a.shift
-        @attributes[key] = a.join ' '
-      end
+      raw_input_array.each { |a| @attributes[a.shift] = a.join ' ' }
     end
 
     def build_image_tag(icon_filename)
-      file_ext = FILE_EXT_REGEX.match(icon_filename)[1]
+      file_ext = icon_filename.split('.').pop
 
       element = if file_ext == 'svg'
                   Jekyll::Tags::JekyllInlineSvg.send(
