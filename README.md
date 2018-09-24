@@ -8,12 +8,12 @@ report bugs if you find them.**
 It's a jekyll tag that lets you build unordered lists of items that follow the "Icon + label"
 format.
 
-Write a tag like this: 
+Write this: 
 ```
 {% icon_list rails bootstrap heroku aws %}
 ```
 
-Add some icons, configuration, and a little CSS, and you get something like this: 
+Add some icons, configuration, and a little CSS, get something like this: 
 
 ![imgur screenshot]( https://i.imgur.com/9m6qCRB.png )
 
@@ -27,7 +27,7 @@ markup; the styling is up to you.
 
 It integrates with (and requires) [jekyll-svg-inliner](https://github.com/sdumetz/jekyll-inline-svg)
 to inline your SVGs for you. If you don't use inline SVGs (even though you should), it sets your file
-as an img src attribute (with alt text!).
+as the `src=` of an `img` tag.
 
 ## Installation
 
@@ -46,9 +46,115 @@ plugins:
   -jekyll_icon_list
 ```
 
-You'll also want some css. Here's an example that should get you close to the screenshot:
-```css
+## Basic Usage
 
+```
+{% icon_list example example2 example3 %}
+```
+
+By default, with no configuration:
+
+* It will look for icons in images/icons/ with the same name as your shortname, grabbing the first result which matches (shortname).*
+
+* It will take your shortname, swap dashes and underscores for spaces, and titleize it for the label.
+
+Example: if you write `{% icon_list ruby-on-rails %}`, with `ruby-on-rails.png` located in
+`images/icons/`, it will generate markup like this:
+```html
+<ul>
+  <li><img src="/images/icons/ruby-on-rails.png">Ruby On Rails</li>
+<ul>
+```
+
+You can add HTML attributes with --(element) arguments: 
+```
+{% icon_list example --ul class="stumpy" --li class="mopey" data-max-volume="11" %}
+```
+Which will generate markup like this:
+```html
+<ul class="stumpy">
+	<li class="mopey" data-max-volume="11"><svg>(...)</svg>Example</li>
+</ul>
+```
+
+Available arguments:
+`--ul, --li, --img, --svg, --a`
+These will overwrite any global defaults you have set.
+
+## Less Basic Usage
+If the default filenames and labels don't work for you, create:
+`/_data/icon_list.yml`
+
+And fill it with your icons in the following format: 
+```yml
+# /_data/icon_list.yml
+
+example1:
+  icon: example_logo.svg 
+  label: My Nicely Formatted, Long Name
+  url: https://example1.com
+example2:
+  icon: sloppy.svg
+  label: Here's Another Label I Don't Have To Type Again
+```
+
+Each key is an item shortname, and everything is optional. `icon:` is the filename of the icon you
+would like to use, which will be prepended by your default_path if you set one (more on that later).
+
+If you set a `url:`, it'll wrap the li's contents in an anchor tag.
+
+## Configuration
+
+* All of icon_list's configuration is under the `icon_list:` key in \_config.yml
+* `default_path:` - Where to find your icons
+* `defaults:` - Optional HTML attributes to include with your markup. If a corresponding --(element)
+    argument is passed to the tag, the defaults will be ignored.
+
+Here's an example configuration:
+
+```yml
+# _config.yml
+
+icon_list:
+  default_path: images/here/
+  defaults:
+    ul: class="icon-list"
+    li: class="icon-list-item"
+    svg: overflow="visible" class="icon"
+    img: class="wish-i-had-inline-svgs"
+    a: example-attribute="example-value"
+
+svg: 
+  optimize: true # Tells svg-inliner to clean up your SVGs.
+
+```
+
+## Notes
+
+### Icon finding logic 
+
+It tries to be smart about finding your icons. Here's the decision  matrix:
+
+                       |  default_path set     |  default_path not set
+-----------------------|-----------------------|-----------------------
+item icon set          |  default_path + icon  |  icon
+item icon not set      |  search default_path  |  search /images/icons
+
+When it searches a path, it just spits out the first result and raises an exception if there aren't
+any.
+
+### Accessibility
+Right now the only way to set individualized alt text for your icons is to use SVGs, and include a
+title tag in the file. Since the label itself will likely describe your image quite nicely, I
+recommend you set `alt=""` as a default attribute for image tags.
+
+If you would like automatic alt-text generation, or the ability to specify alt text in the data
+file, let me know or write it yourself and submit a pull request.
+
+### Styling
+Here's an example that should get you close to the screenshot:
+
+```css
 ul.icon-list {
   margin: 0;
   font-size: 1.1em;
@@ -68,89 +174,35 @@ ul.icon-list li {
   height: 1em;
   margin-right: .2em;
 }
-
 ```
 
-## Usage
+### Using <use> To build an icon system
+[CSS tricks on SVG Icon Systems (old article warning)](https://css-tricks.com/svg-sprites-use-better-icon-fonts/)
+[Slightly newer article on <use>](https://css-tricks.com/svg-use-with-external-reference-take-2/)
+[MDN docs](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/use)
 
-Basic usage: 
+You can do it while using this plugin, but it's not remarkably efficient; build
+& inject the reference file on your own, and then write your SVG files like
+this:
 
-```
-{% icon_list example_shortname example2 %}
-```
-
-By default, with no configuration:
-
-* It will look for icons in images/icons/ with the same name as your shortname, grabbing the first result which matches (shortname).*
-
-* It will take your shortname, swap dashes for spaces, and titleize it for the label.
-
-So for example, if you write `{% icon_list ruby-on-rails %}`, with `ruby-on-rails.png` located in
-`images/icons/`, it will generate markup like this:
-```
-<ul>
-  <li><img src="/images/icons/ruby-on-rails.png">Ruby On Rails</li>
-<ul>
+```html
+<!-- example-name.svg -->
+<svg>
+	<use href="#example-icon">
+</svg>
 ```
 
-You can specify attributes to add with --(element) arguments: 
-```
-{% icon_list example example2 example3 --ul class="stumpy" --li class="mopey" %}
-
-```
-
-Available arguments:
-`--ul, --li, --img, --svg, --a`
-These will overwrite any global defaults you have set.
-
-in your \_config.yml there are a few optional settings you can add. Here's an example:
-```
-# _config.yml
-
-icon_list:
-  default_path: images/here/
-  defaults:
-    ul: class="icon-list"
-    li: class="icon-list-item"
-    svg: overflow="visible" class="icon"
-    img: class="wish-i-had-inline-svgs"
-    a: example-attribute="example-value"
-
-svg: 
-  optimize: true # Tells svg-inliner to clean up your SVGs.
-
-```
-
-* `default_path:`- Prepended to the filenames specified in your data file.
-* `defaults:` - Optional HTML attributes to include with your markup, if none are specified in the
-    tag.
-
-If the default filenames and labels don't work for you, create:
-`/_data/icon_list.yml`
-
-And fill it with your icons in the following format: 
-```
-# /_data/icon_list.yml
-
-example1:
-  icon: example_logo.svg 
-  label: My Nicely Formatted, Long Name
-  url: https://example1.com
-example2:
-  icon: sloppy.svg
-  label: Here's Another Label I Don't Have To Type Again
-```
-
-The default directory setting in config.yml will be prepended to your
-filenames. You'll obviously need some icons, I hear you can find them on the
-internet.
-
-If you set a url: for an item in the data file, it'll wrap the li's contents in
-an anchor tag for you.
+At this point the dependency on jekyll-svg-inliner gets pretty tenuous; do we
+really need a plugin and an extra file to render 3 lines of simple code? In the
+future I'd like to streamline this.
 
 ## Contributing
 
 Bug reports and pull requests are welcome. https://github.com/rbuchberger/jekyll_icon_list
+Contact: robert@robert-buchberger.com
+
+I've been using rubocop with the default settings, and would appreciate if pull requests did the
+same.
 
 ## License
 
