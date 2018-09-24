@@ -55,22 +55,16 @@ module JekyllIconList
     end
 
     def build_image_tag(icon_filename)
-      file_ext = icon_filename.split('.').pop
-
-      element = if file_ext == 'svg'
-                  Jekyll::Tags::JekyllInlineSvg.send(
-                    :new,
-                    'svg',
-                    "#{icon_filename} #{@attributes['svg']}",
-                    @tokens
-                  ).render(@context)
-                else
-                  "<img src=\"#{icon_filename}\" "\
-                    "alt=\"icon for #{icon_data['label']}\" "\
-                    "#{@attributes['img']}>"
-                end
-
-      element << "\n"
+      if icon_filename.split('.').pop.casecmp('svg')
+        Jekyll::Tags::JekyllInlineSvg.send(
+          :new,
+          'svg',
+          "#{icon_filename} #{@attributes['svg']}",
+          @tokens
+        ).render(@context)
+      else
+        "<img src=\"#{icon_filename}\" #{@attributes['img']}>"
+      end
     end
 
     def search_path(path, item)
