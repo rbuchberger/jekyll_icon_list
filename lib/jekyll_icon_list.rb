@@ -37,8 +37,8 @@ module JekyllIconList
       @attributes = initialize_attributes
 
       @attributes.each_key do |k|
-        if @li_settings['defaults'] && @li_settings['defaults'][k]
-          @attributes[k] = @li_settings['defaults'][k].dup
+        if @icon_list_settings['defaults'] && @icon_list_settings['defaults'][k]
+          @attributes[k] = @icon_list_settings['defaults'][k].dup
         end
       end
     end
@@ -78,7 +78,7 @@ module JekyllIconList
 
     def find_icon(item_shortname, this_item_data)
       icon_filename = this_item_data['icon']
-      path = @li_settings['default_path'] || ''
+      path = @icon_list_settings['default_path'] || ''
 
       if icon_filename
         path + icon_filename
@@ -126,7 +126,7 @@ module JekyllIconList
       site_settings = @context.registers[:site]
       raise 'could not load website configuration data' unless site_settings
 
-      @li_settings = site_settings.config['icon_list'] || {}
+      @icon_list_settings = site_settings.config['icon_list'] || {}
 
       all_items_data = site_settings.data['icon_list'] || {}
 
