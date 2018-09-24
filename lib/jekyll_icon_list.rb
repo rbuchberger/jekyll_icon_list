@@ -73,30 +73,23 @@ module JekyllIconList
       element << "\n"
     end
 
+    def search_path(path, item)
+      search_results = Dir.glob(Dir.pwd + path + item + '.*')
+      raise "No icon found at #{path + item} .*" unless search_results.any?
+
+      # Returns the first matching result. May improve in the future:
+      search_results.first
+    end
+
     def find_icon(item_shortname, this_item_data)
-      # This line gave me an interesting bug: jekyll data files are apparently
-      # mutable and persistent between tag calls. If I had the same item
-      # multiple times on a page (which is the entire point of this plugin), the
-      # default path would be prepended each time. .dup is very important!
-      icon_data_filename = this_item_data['icon'].dup
-      default_path = @li_settings['default_path'] || '/images/icons/'
+      icon_filename = this_item_data['icon']
+      path = @li_settings['default_path'] || ''
 
-      if icon_data_filename && default_path
-        default_path + icon_data_filename
-      elsif icon_data_filename
-        icon_data_filename
-      elsif default_path
-        f = Dir.glob(Dir.pwd + default_path + item_shortname + '.*')
-        unless f.any?
-          raise "No icon for #{item_shortname} set in _data/icon_list.yml"\
-          ", and default filename #{default_path + item_shortname}.* not found"
-        end
-
-        f.first # Returns the first matching result. May improve in the future
+      if icon_filename
+        path + icon_filename
       else
-        raise "No icon for #{item_shortname} specified in _data/icon_list.yml"\
-          'And no default directory specified in _config.yml.'\
-          'Must have one, the other, or both.'
+        path = '/images/icons/' if path.empty?
+        search_path(path, item_shortname)
       end
     end
 
