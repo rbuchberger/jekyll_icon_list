@@ -137,9 +137,9 @@ svg:
 
 It tries to be smart about finding your icons. Here's the decision  matrix:
 
-                  | default_path set    | default_path not set
----               | ---                 | ---
-item icon set     | default_path + icon | icon
+ | default_path set | default_path not set
+--- | --- | ---
+item icon set | default_path + icon | icon
 item icon not set | search default_path | search /images/icons
 
 When it searches a path, it just spits out the first result and raises an exception if there aren't
