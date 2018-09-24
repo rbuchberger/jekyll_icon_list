@@ -1,7 +1,7 @@
 # Jekyll Icon List
 
-**This plugin works, but I haven't had time to test it very thoroughly. Use with caution, and please
-report bugs if you find them.**
+**This plugin, though simple, is not thoroughly tested. Use with caution, and please report bugs if
+you find them.**
 
 ## What is it? 
 
@@ -19,11 +19,10 @@ Add some icons, configuration, and a little CSS, get something like this:
 
 I use it on [my portfolio](https://robert-buchberger.com/projects.html)
 ([ github ](https://github.com/rbuchberger/robert-buchberger.com)) if you want to see an example.
-(Actually, currently my master branch doesn't use the gem. Yet. Check the other branches.)
 
 You could use it to build category lists, or tag lists, or a bunch of other stuff.  You can pass
 element attributes in the tag itself, or set default attributes in the config. It only generates
-markup; the styling is up to you. 
+markup; the styling is up to you.
 
 It integrates with (and requires) [jekyll-svg-inliner](https://github.com/sdumetz/jekyll-inline-svg)
 to inline your SVGs for you. If you don't use inline SVGs (even though you should), it sets your file
@@ -178,16 +177,16 @@ ul.icon-list li {
 }
 ```
 
-### Using <use> To build an icon system
-[CSS tricks on SVG Icon Systems (old article warning)](https://css-tricks.com/svg-sprites-use-better-icon-fonts/)
+### Using \<use> to build an icon system
+[CSS tricks on SVG Icon Systems](https://css-tricks.com/svg-sprites-use-better-icon-fonts/). It's an
+older article sir, but it checks out. 
 
-[Slightly newer article on <use>](https://css-tricks.com/svg-use-with-external-reference-take-2/)
+[Slightly newer CSS tricks article on \<use>](https://css-tricks.com/svg-use-with-external-reference-take-2/)
 
 [MDN docs](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/use)
 
-You can do it while using this plugin, but it's not remarkably efficient; build
-& inject the reference file on your own, and then write your SVG files like
-this:
+You can do it while using this plugin, but you have to do most of it yourself: build & inject the
+reference file on your own, and then write your SVG files like this:
 
 ```html
 <!-- example-name.svg -->
