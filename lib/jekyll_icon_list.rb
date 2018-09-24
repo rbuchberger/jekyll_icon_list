@@ -14,11 +14,6 @@ module JekyllIconList
   # --ul, --li, --svg, and --img. Their arguments are inserted into their
   # respective HTML elements upon render.
   class IconList < Liquid::Tag
-    # \.     -  dot
-    # [\w]+  -  One or more letters, numbers, or underscores
-    # $      -  End of string
-    FILE_EXT_REGEX = /\.([\w]+)\z/
-
     def initialize(tag_name, raw_input, tokens)
       @raw_input = raw_input
       @tokens = tokens
@@ -26,6 +21,9 @@ module JekyllIconList
     end
 
     def initialize_attributes
+      # We will be interpolating strings with these values several times, so
+      # initializing them with empty strings is convenient.
+
       {
         'ul' => '',
         'li' => '',
@@ -35,82 +33,64 @@ module JekyllIconList
       }
     end
 
-    def attribute_defaults
-      attributes = initialize_attributes
+    def set_attribute_defaults
+      @attributes = initialize_attributes
 
-      attributes.each_key do |k|
-        if @li_settings['defaults'] && @li_settings['defaults'][k]
-          attributes[k] = @li_settings['defaults'][k].dup
+      @attributes.each_key do |k|
+        if @icon_list_settings['defaults'] && @icon_list_settings['defaults'][k]
+          @attributes[k] = @icon_list_settings['defaults'][k].dup
         end
       end
-
-      attributes
     end
 
-    def parse_input(raw_input)
+    def parse_input
       # raw_input will look something like this:
-      # 'item1 item2 item3 --ul attribute="value" --(...) "'
+      # 'item1 item2 item3 --ul attribute="value" --(...)'
 
-      raw_input_array = raw_input.split('--').map { |i| i.strip.split(' ') }
+      raw_input_array = @raw_input.split('--').map { |i| i.strip.split(' ') }
       # [['item1', 'item2', 'item3'], ['ul', 'attribute="value"'], (...) ]
 
       @item_shortnames = raw_input_array.shift
 
-      raw_input_array.each do |a|
-        key = a.shift
-        @attributes[key] = a.join ' '
-      end
+      raw_input_array.each { |a| @attributes[a.shift] = a.join ' ' }
     end
 
     def build_image_tag(icon_filename)
-      file_ext = FILE_EXT_REGEX.match(icon_filename)[1]
+      if icon_filename.split('.').pop.casecmp('svg')
+        Jekyll::Tags::JekyllInlineSvg.send(
+          :new,
+          'svg',
+          "#{icon_filename} #{@attributes['svg']}",
+          @tokens
+        ).render(@context)
+      else
+        "<img src=\"#{icon_filename}\" #{@attributes['img']}>"
+      end
+    end
 
-      element = if file_ext == 'svg'
-                  Jekyll::Tags::JekyllInlineSvg.send(
-                    :new,
-                    'svg',
-                    "#{icon_filename} #{@attributes['svg']}",
-                    @tokens
-                  ).render(@context)
-                else
-                  "<img src=\"#{icon_filename}\" "\
-                    "alt=\"icon for #{icon_data['label']}\" "\
-                    "#{@attributes['img']}>"
-                end
+    def search_path(path, item)
+      search_results = Dir.glob(Dir.pwd + path + item + '.*')
+      raise "No icon found at #{path + item} .*" unless search_results.any?
 
-      element << "\n"
+      # Returns the first matching result. May improve in the future:
+      search_results.first
     end
 
     def find_icon(item_shortname, this_item_data)
-      # This line gave me an interesting bug: jekyll data files are apparently
-      # mutable and persistent between tag calls. If I had the same item
-      # multiple times on a page (which is the entire point of this plugin), the
-      # default path would be prepended each time. .dup is very important!
-      icon_data_filename = this_item_data['icon'].dup
-      default_path = @li_settings['default_path'] || '/images/icons/'
+      icon_filename = this_item_data['icon']
+      path = @icon_list_settings['default_path'] || ''
 
-      if icon_data_filename && default_path
-        default_path + icon_data_filename
-      elsif icon_data_filename
-        icon_data_filename
-      elsif default_path
-        f = Dir.glob(Dir.pwd + default_path + item_shortname + '.*')
-        unless f.any?
-          raise "No icon for #{item_shortname} set in _data/icon_list.yml"\
-          ", and default filename #{default_path + item_shortname}.* not found"
-        end
-
-        f.first # Returns the first matching result. May improve in the future
+      if icon_filename
+        path + icon_filename
       else
-        raise "No icon for #{item_shortname} specified in _data/icon_list.yml"\
-          'And no default directory specified in _config.yml.'\
-          'Must have one, the other, or both.'
+        path = '/images/icons/' if path.empty?
+        search_path(path, item_shortname)
       end
     end
 
     def build_label(shortname, this_item_data)
       this_item_data['label'] ||
-        shortname.split('-').map(&:capitalize).join(' ')
+        shortname.split(/[-_]/).map(&:capitalize).join(' ')
     end
 
     def build_li(this_item_data, icon_location, label)
@@ -121,7 +101,7 @@ module JekyllIconList
       li << build_image_tag(icon_location)
       li << label
       li << '</a>' if this_item_data['url']
-      li << '</li>'
+      li << '</li>\n'
     end
 
     def build_html(all_items_data)
@@ -146,13 +126,13 @@ module JekyllIconList
       site_settings = @context.registers[:site]
       raise 'could not load website configuration data' unless site_settings
 
-      @li_settings = site_settings.config['icon_list'] || {}
+      @icon_list_settings = site_settings.config['icon_list'] || {}
 
       all_items_data = site_settings.data['icon_list'] || {}
 
-      @attributes = attribute_defaults
+      set_attribute_defaults
 
-      parse_input(@raw_input)
+      parse_input
 
       build_html(all_items_data)
     end
