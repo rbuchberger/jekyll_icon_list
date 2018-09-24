@@ -39,6 +39,8 @@ group :jekyll_plugins do
 end
 ```
 
+`bundle install`
+
 ```yml
 # _config.yml
 
@@ -73,7 +75,7 @@ You can add HTML attributes with --(element) arguments:
 Which will generate markup like this:
 ```html
 <ul class="stumpy">
-	<li class="mopey" data-max-volume="11"><svg>(...)</svg>Example</li>
+  <li class="mopey" data-max-volume="11"><svg>(...)</svg>Example</li>
 </ul>
 ```
 
@@ -101,14 +103,14 @@ example2:
 Each key is an item shortname, and everything is optional. `icon:` is the filename of the icon you
 would like to use, which will be prepended by your default_path if you set one (more on that later).
 
-If you set a `url:`, it'll wrap the li's contents in an anchor tag.
+If you set a `url:`, it'll wrap the `<li>` contents in an anchor tag.
 
 ## Configuration
 
 * All of icon_list's configuration is under the `icon_list:` key in \_config.yml
 * `default_path:` - Where to find your icons
-* `defaults:` - Optional HTML attributes to include with your markup. If a corresponding --(element)
-    argument is passed to the tag, the defaults will be ignored.
+* `defaults:` - Optional HTML attributes to include with your markup. They will be ignored if
+    a corresponding --(element) argument is passed in the tag.
 
 Here's an example configuration:
 
@@ -135,10 +137,10 @@ svg:
 
 It tries to be smart about finding your icons. Here's the decision  matrix:
 
-                       |  default_path set     |  default_path not set
------------------------|-----------------------|-----------------------
-item icon set          |  default_path + icon  |  icon
-item icon not set      |  search default_path  |  search /images/icons
+                  | default_path set    | default_path not set
+---               | ---                 | ---
+item icon set     | default_path + icon | icon
+item icon not set | search default_path | search /images/icons
 
 When it searches a path, it just spits out the first result and raises an exception if there aren't
 any.
@@ -195,6 +197,10 @@ this:
 At this point the dependency on jekyll-svg-inliner gets pretty tenuous; do we
 really need a plugin and an extra file to render 3 lines of simple code? In the
 future I'd like to streamline this.
+
+### Liquid variables
+
+You can't pass in liquid variables yet. It's on the to-do list.
 
 ## Contributing
 
