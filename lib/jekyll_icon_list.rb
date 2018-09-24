@@ -21,6 +21,9 @@ module JekyllIconList
     end
 
     def initialize_attributes
+      # We will be interpolating strings with these values several times, so
+      # initializing them with empty strings is convenient.
+
       {
         'ul' => '',
         'li' => '',
@@ -30,23 +33,21 @@ module JekyllIconList
       }
     end
 
-    def attribute_defaults
-      attributes = initialize_attributes
+    def set_attribute_defaults
+      @attributes = initialize_attributes
 
-      attributes.each_key do |k|
+      @attributes.each_key do |k|
         if @li_settings['defaults'] && @li_settings['defaults'][k]
-          attributes[k] = @li_settings['defaults'][k].dup
+          @attributes[k] = @li_settings['defaults'][k].dup
         end
       end
-
-      attributes
     end
 
-    def parse_input(raw_input)
+    def parse_input
       # raw_input will look something like this:
-      # 'item1 item2 item3 --ul attribute="value" --(...) "'
+      # 'item1 item2 item3 --ul attribute="value" --(...)'
 
-      raw_input_array = raw_input.split('--').map { |i| i.strip.split(' ') }
+      raw_input_array = @raw_input.split('--').map { |i| i.strip.split(' ') }
       # [['item1', 'item2', 'item3'], ['ul', 'attribute="value"'], (...) ]
 
       @item_shortnames = raw_input_array.shift
@@ -100,7 +101,7 @@ module JekyllIconList
       li << build_image_tag(icon_location)
       li << label
       li << '</a>' if this_item_data['url']
-      li << '</li>'
+      li << '</li>\n'
     end
 
     def build_html(all_items_data)
@@ -129,9 +130,9 @@ module JekyllIconList
 
       all_items_data = site_settings.data['icon_list'] || {}
 
-      @attributes = attribute_defaults
+      set_attribute_defaults
 
-      parse_input(@raw_input)
+      parse_input
 
       build_html(all_items_data)
     end
