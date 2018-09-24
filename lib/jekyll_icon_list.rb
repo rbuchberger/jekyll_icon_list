@@ -101,7 +101,7 @@ module JekyllIconList
       li << build_image_tag(icon_location)
       li << label
       li << '</a>' if this_item_data['url']
-      li << '</li>\n'
+      li << "</li>\n"
     end
 
     def build_html(all_items_data)
