@@ -180,7 +180,9 @@ ul.icon-list li {
 
 ### Using <use> To build an icon system
 [CSS tricks on SVG Icon Systems (old article warning)](https://css-tricks.com/svg-sprites-use-better-icon-fonts/)
+
 [Slightly newer article on <use>](https://css-tricks.com/svg-use-with-external-reference-take-2/)
+
 [MDN docs](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/use)
 
 You can do it while using this plugin, but it's not remarkably efficient; build
