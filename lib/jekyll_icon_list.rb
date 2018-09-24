@@ -90,7 +90,7 @@ module JekyllIconList
 
     def build_label(shortname, this_item_data)
       this_item_data['label'] ||
-        shortname.split('-').map(&:capitalize).join(' ')
+        shortname.split(/[-_]/).map(&:capitalize).join(' ')
     end
 
     def build_li(this_item_data, icon_location, label)
