@@ -20,32 +20,10 @@ module JekyllIconList
       super
     end
 
-    def initialize_attributes
-      # We will be interpolating strings with these values several times, so
-      # initializing them with empty strings is convenient.
-
-      {
-        'ul' => '',
-        'li' => '',
-        'img' => '',
-        'svg' => '',
-        'a' => ''
-      }
-    end
-
-    def set_attribute_defaults
-      @attributes = initialize_attributes
-
-      @attributes.each_key do |k|
-        if @icon_list_settings['defaults'] && @icon_list_settings['defaults'][k]
-          @attributes[k] = @icon_list_settings['defaults'][k].dup
-        end
-      end
-    end
-
     def parse_input
       # raw_input will look something like this:
       # 'item1 item2 item3 --ul attribute="value" --(...)'
+      @attributes = @icon_list_settings['defaults'].dup || {}
 
       raw_input_array = @raw_input.split('--').map { |i| i.strip.split(' ') }
       # [['item1', 'item2', 'item3'], ['ul', 'attribute="value"'], (...) ]
@@ -53,6 +31,8 @@ module JekyllIconList
       @item_shortnames = raw_input_array.shift
 
       raw_input_array.each { |a| @attributes[a.shift] = a.join ' ' }
+      @attributes.each_value { |v| v.prepend(' ') }
+      @attributes.default = '' # Convenient for concatenation
     end
 
     def build_image_tag(icon_filename)
@@ -60,11 +40,11 @@ module JekyllIconList
         Jekyll::Tags::JekyllInlineSvg.send(
           :new,
           'svg',
-          "#{icon_filename} #{@attributes['svg']}",
+          icon_filename + @attributes['svg'],
           @tokens
         ).render(@context)
       else
-        "<img src=\"#{icon_filename}\" #{@attributes['img']}>"
+        "<img src=\"#{icon_filename}\"#{@attributes['img']}>"
       end
     end
 
@@ -94,9 +74,9 @@ module JekyllIconList
     end
 
     def build_li(this_item_data, icon_location, label)
-      li = "  <li #{@attributes['li']}>"
+      li = "  <li#{@attributes['li']}>"
       if this_item_data && this_item_data['url']
-        li << "<a href=\"#{this_item_data['url']}\" #{@attributes['a']}>"
+        li << "<a href=\"#{this_item_data['url']}\"#{@attributes['a']}>"
       end
       li << build_image_tag(icon_location)
       li << label
@@ -105,7 +85,7 @@ module JekyllIconList
     end
 
     def build_html(all_items_data)
-      list = "<ul #{@attributes['ul']}>\n"
+      list = "<ul#{@attributes['ul']}>\n"
 
       @item_shortnames.each do |n|
         this_icon_data = all_items_data[n] || {}
@@ -130,7 +110,7 @@ module JekyllIconList
 
       all_items_data = site_settings.data['icon_list'] || {}
 
-      set_attribute_defaults
+      initialize_attributes
 
       parse_input
 
