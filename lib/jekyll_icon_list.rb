@@ -36,7 +36,7 @@ module JekyllIconList
     end
 
     def build_image_tag(icon_filename)
-      if icon_filename.split('.').pop.casecmp('svg')
+      if icon_filename.split('.').pop.casecmp('svg') == 0
         Jekyll::Tags::JekyllInlineSvg.send(
           :new,
           'svg',
@@ -49,11 +49,12 @@ module JekyllIconList
     end
 
     def search_path(path, item)
-      search_results = Dir.glob(Dir.pwd + path + item + '.*')
+      # We have to strip the leading slash for Dir to know it's relative:
+      search_results = Dir.glob( path[1..-1] + item + '.*')
       raise "No icon found at #{path + item} .*" unless search_results.any?
 
-      # Returns the first matching result. May improve in the future:
-      search_results.first
+      # And put it back so that pages outside of the root directory keep working
+      search_results.first.prepend '/'
     end
 
     def find_icon(item_shortname, this_item_data)
@@ -109,8 +110,6 @@ module JekyllIconList
       @icon_list_settings = site_settings.config['icon_list'] || {}
 
       all_items_data = site_settings.data['icon_list'] || {}
-
-      initialize_attributes
 
       parse_input
 
