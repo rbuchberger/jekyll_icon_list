@@ -116,6 +116,45 @@ module JekyllIconList
       build_html(all_items_data)
     end
   end
+
+  class Element
+    attr_accessor :name, :attributes, :new_line, :self_closing
+    alias_method :self_closing?, :self_closing
+    alias_method :new_line?, :new_line
+    def init(name, attributes: '', self_closing: false, new_line: false)
+      @name = name
+      @attributes = attributes
+      @attributes.prepend ' ' unless attributes.empty?
+      @self_closing = self_closing
+    end
+
+    def opening_tag
+      "<#{name}#{attributes}>"
+    end
+
+    def closing_tag
+      return if self_closing?
+      t = "</#{name}>"
+      t << "\n" if new_line?
+    end
+
+    def render
+      opening_tag
+      yield
+      closing_tag
+    end
+
+  end
+end
+
+# Demo
+Element.new 'ul' do
+  Element.new 'li' do
+    Element.new 'img' do
+
+    end
+  end
+
 end
 
 Liquid::Template.register_tag('icon_list', JekyllIconList::IconList)
