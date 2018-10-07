@@ -31,12 +31,12 @@ module JekyllIconList
 
       all_items_data = site_settings.data['icon_list'] || {}
 
-      parse_input
+      build_settings
 
       build_html(all_items_data)
     end
 
-    def parse_input
+    def build_settings
       # raw_input will look something like this:
       # 'item1 item2 item3 --ul attribute="value" --(...)'
 
@@ -82,8 +82,10 @@ module JekyllIconList
     end
 
     def search_path(path, item)
-      # We have to strip the leading slash for Dir to know it's relative:
-      search_results = Dir.glob(path[1..-1] + item + '.*')
+      # If there is a leading slash, we have to strip it for Dir to know it's
+      # relative:
+      search_path = path[0] == '/' ? path[1..-1] : path
+      search_results = Dir.glob(search_path + item + '.*')
       raise "No icon found at #{path + item} .*" unless search_results.any?
 
       # And put it back so that pages outside of the root directory keep working
