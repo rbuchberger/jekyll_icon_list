@@ -1,7 +1,10 @@
 require 'jekyll_icon_list/version'
+
 require 'jekyll'
 require 'jekyll-inline-svg'
+require 'jekyll/liquid_extensions'
 require 'objective_elements'
+
 # Title: Jekyll Icon List
 # Author: Robert Buchberger : robert@robert-buchberger.com
 # Description: Generates lists of icons + labels, useful for things like tag
@@ -15,6 +18,9 @@ module JekyllIconList
   # --ul, --li, --svg, and --img. Their arguments are inserted into their
   # respective HTML elements upon render.
   class IconList < Liquid::Tag
+    # Used for finding liquid variables in input
+    include Jekyll::LiquidExtensions
+
     def initialize(tag_name, raw_input, tokens)
       @raw_input = raw_input
       @tokens = tokens
@@ -37,20 +43,36 @@ module JekyllIconList
     end
 
     def build_settings
-      # raw_input will look something like this:
-      # 'item1 item2 item3 --ul attribute="value" --(...)'
-
       @attributes = @icon_list_settings['defaults'].dup || {}
       # {'ul' => 'class="awesome" (...)', (...)}
 
-      raw_input_array = @raw_input.split('--').map { |i| i.strip.split(' ') }
+      # raw_input will look something like this:
+      # 'item1 item2 item3 --ul attribute="value" --(...)'
+      raw_input_array = liquid_lookup(@raw_input).split('--').map do |i|
+        i.strip.split(' ')
+      end
       # [['item1', 'item2', 'item3'], ['ul', 'attr="value', 'value2"'],(...)]
 
       @item_shortnames = raw_input_array.shift
-      # ['ul, 'attribute="value1 value2"', (...)]
+      # item_shortnames = ['item1', 'item2', 'item3']
+      # raw_input_array = ['ul, 'attribute="value1 value2"', (...)]
 
       raw_input_array.each { |a| @attributes[a.shift] = a.join ' ' }
       # {'ul' => 'attribute="value1 value2 value3"'}
+    end
+
+    LIQUID_REGEX = /\{\{\s*([\w]+\.?[\w]*)\s*\}\}/i
+    def liquid_lookup(input)
+      # I mostly stole this method from SVG Inliner. There may be a better way,
+      # but this works well enough.
+      input.scan LIQUID_REGEX do |match|
+        value = lookup_variable(@context, match.first)
+        value = value.join(' ') if value.is_a? Array
+
+        input = input.sub(LIQUID_REGEX, value)
+      end
+
+      input
     end
 
     def build_html(all_items_data)
@@ -134,13 +156,10 @@ module JekyllIconList
     end
 
     def build_anchor(url, content)
-      a = DoubleTag.new(
-        'a',
-        attributes: { href: url },
-        oneline: true,
-        content: content
-      )
+      a = DoubleTag.new 'a', attributes: { href: url }, oneline: true
+      a.add_content content
       a.add_attributes @attributes['a'] if @attributes['a']
+      a
     end
   end
 end
