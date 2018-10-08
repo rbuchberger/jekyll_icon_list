@@ -48,6 +48,10 @@ plugins:
 
 ```
 {% icon_list example example2 example3 %}
+
+# or: 
+
+{% icon_list {{ page.categories }} %}
 ```
 
 By default, with no configuration:
@@ -103,6 +107,30 @@ Each key is an item shortname, and everything is optional. `icon:` is the filena
 would like to use, which will be prepended by your default_path if you set one (more on that later).
 
 If you set a `url:`, it'll wrap the `<li>` contents in an anchor tag.
+
+### Liquid Variables:
+
+It will parse liquid variables, as either a yaml array or a space-separated-list. Enclose them in
+double curly braces, like this: `{{ my_context.my_variable }}`. **If given multiword variables, it
+will attempt to build an item for each word.**
+
+Example: 
+
+```
+---
+category_list: 
+  - skydiving
+  - spelunking
+  - bouldering
+
+category_string: skydiving spelunking bouldering
+---
+
+{% icon_list {{ page.category_list }} %}
+
+{% icon_list {{ page.category_string }} %}
+```
+(Both icon_list tags will return the same output)
 
 ## Configuration
 
@@ -199,13 +227,9 @@ At this point the dependency on jekyll-svg-inliner gets pretty tenuous; do we
 really need a plugin and an extra file to render 3 lines of simple code? In the
 future I'd like to streamline this.
 
-### Liquid variables
-
-You can't pass in liquid variables yet. It's on the to-do list.
-
 ## Contributing
 
-Bug reports and pull requests are welcome. https://github.com/rbuchberger/jekyll_icon_list
+Bug reports, feature requests, and pull requests are welcome. https://github.com/rbuchberger/jekyll_icon_list
 Contact: robert@robert-buchberger.com
 
 I've been using rubocop with the default settings, and would appreciate if pull requests did the
