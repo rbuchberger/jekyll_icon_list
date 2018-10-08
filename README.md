@@ -1,8 +1,5 @@
 # Jekyll Icon List
 
-**This plugin, though simple, is not thoroughly tested. Use with caution, and please report bugs if
-you find them.**
-
 ## What is it? 
 
 It's a jekyll tag that lets you build unordered lists of items that follow the "Icon + label"
@@ -55,7 +52,8 @@ plugins:
 
 By default, with no configuration:
 
-* It will look for icons in images/icons/ with the same name as your shortname, grabbing the first result which matches (shortname).*
+* It will look for icons in images/icons/ with the same name as your shortname, grabbing the first
+  result which matches (shortname).*
 
 * It will take your shortname, swap dashes and underscores for spaces, and titleize it for the label.
 
@@ -80,7 +78,9 @@ Which will generate markup like this:
 
 Available arguments:
 `--ul, --li, --img, --svg, --a`
-These will overwrite any global defaults you have set.
+
+**These will overwrite any global defaults you have set.** You can use this to prevent application
+of the defaults, just pass an empty argument.
 
 ## Less Basic Usage
 If the default filenames and labels don't work for you, create:
@@ -107,7 +107,7 @@ If you set a `url:`, it'll wrap the `<li>` contents in an anchor tag.
 ## Configuration
 
 * All of icon_list's configuration is under the `icon_list:` key in \_config.yml
-* `default_path:` - Where to find your icons
+* `default_path:` - Where to find your icons.
 * `defaults:` - Optional HTML attributes to include with your markup. They will be ignored if
     a corresponding --(element) argument is passed in the tag.
 
@@ -117,7 +117,7 @@ Here's an example configuration:
 # _config.yml
 
 icon_list:
-  default_path: images/here/
+  default_path: /images/here/
   defaults:
     ul: class="icon-list"
     li: class="icon-list-item"
@@ -141,7 +141,7 @@ It tries to be smart about finding your icons. Here's the decision  matrix:
 item icon set     | default_path + icon | icon
 item icon not set | search default_path | search /images/icons
 
-When it searches a path, it just spits out the first result and raises an exception if there aren't
+When it searches a path, it just uses the first match and raises an exception if there aren't
 any.
 
 ### Accessibility
