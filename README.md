@@ -110,27 +110,34 @@ If you set a `url:`, it'll wrap the `<li>` contents in an anchor tag.
 
 ### Liquid Variables:
 
-It will parse liquid variables, as either a yaml array or a space-separated-list. Enclose them in
-double curly braces, like this: `{{ my_context.my_variable }}`. **If given multiword variables, it
-will attempt to build an item for each word.**
+It will parse liquid variables, as a space-separated-list. Enclose them in
+double curly braces, like this: `{{ my_context.my_variable }}`. **If given
+multiword variables, it will attempt to build an item for each word.**
 
 Example: 
 
 ```
 ---
-category_list: 
+categories: skydiving spelunking bouldering
+---
+
+
+{% icon_list {{ page.categories }} %}
+```
+
+If you use yaml arrays, you must join them into a space-separated
+string using `| join ' '`: 
+
+```
+---
+categories: 
   - skydiving
   - spelunking
   - bouldering
-
-category_string: skydiving spelunking bouldering
 ---
 
-{% icon_list {{ page.category_list }} %}
-
-{% icon_list {{ page.category_string }} %}
+{% icon_list {{ page.categories | join ' ' }} %}
 ```
-(Both icon_list tags will return the same output)
 
 ## Configuration
 
