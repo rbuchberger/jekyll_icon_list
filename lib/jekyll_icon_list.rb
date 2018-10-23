@@ -42,15 +42,18 @@ module JekyllIconList
       build_html(all_items_data)
     end
 
+    private
+
     def build_settings
       @attributes = @icon_list_settings['defaults'].dup || {}
       # {'ul' => 'class="awesome" (...)', (...)}
 
       # raw_input will look something like this:
       # 'item1 item2 item3 --ul attribute="value" --(...)'
-      raw_input_array = liquid_lookup(@raw_input).split('--').map do |i|
+      raw_input_array = liquid_parse(@raw_input).split('--').map do |i|
         i.strip.split(' ')
       end
+
       # [['item1', 'item2', 'item3'], ['ul', 'attr="value', 'value2"'],(...)]
 
       @item_shortnames = raw_input_array.shift
@@ -61,18 +64,8 @@ module JekyllIconList
       # {'ul' => 'attribute="value1 value2 value3"'}
     end
 
-    LIQUID_REGEX = /\{\{\s*([\w]+\.?[\w]*)\s*\}\}/i
-    def liquid_lookup(input)
-      # I mostly stole this method from SVG Inliner. There may be a better way,
-      # but this works well enough.
-      input.scan LIQUID_REGEX do |match|
-        value = lookup_variable(@context, match.first)
-        value = value.join(' ') if value.is_a? Array
-
-        input = input.sub(LIQUID_REGEX, value)
-      end
-
-      input
+    def liquid_parse(input)
+      Liquid::Template.parse(input).render(@context)
     end
 
     def build_html(all_items_data)
@@ -140,14 +133,10 @@ module JekyllIconList
     end
 
     def build_svg(icon_filename)
-      params = icon_filename
-      params << ' ' + @attributes['svg'] if @attributes['svg']
-      Jekyll::Tags::JekyllInlineSvg.send(
-        :new,
-        'svg',
-        params,
-        @tokens
-      ).render(@context)
+      tag = "{% svg #{icon_filename}"
+      tag << ' ' + @attributes['svg'] if @attributes['svg']
+      tag << ' %}'
+      liquid_parse(tag)
     end
 
     def build_img(icon_filename)
