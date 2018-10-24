@@ -30,12 +30,12 @@ module JekyllIconList
     def render(context)
       @context = context
 
-      site_settings = @context.registers[:site]
-      raise 'could not load website configuration data' unless site_settings
+      site = @context.registers[:site]
+      raise 'could not load website configuration data' unless site
 
-      @icon_list_settings = site_settings.config['icon_list'] || {}
+      @icon_list_settings = site.config['icon_list'] || {}
 
-      all_items_data = site_settings.data['icon_list'] || {}
+      all_items_data = site.data['icon_list'] || {}
 
       build_settings
 
@@ -50,7 +50,7 @@ module JekyllIconList
 
       # raw_input will look something like this:
       # 'item1 item2 item3 --ul attribute="value" --(...)'
-      raw_input_array = liquid_parse(@raw_input).split('--').map do |i|
+      raw_input_array = liquid_parse(@raw_input).split(' --').map do |i|
         i.strip.split(' ')
       end
 
@@ -78,7 +78,7 @@ module JekyllIconList
 
         label = build_label(n, this_item_data)
 
-        list.add_content build_li(this_item_data, icon_location, label)
+        list << build_li(this_item_data, icon_location, label)
       end
 
       list.to_s
@@ -121,11 +121,12 @@ module JekyllIconList
       )
       return li unless this_item_data['url']
 
-      li.reset_content build_anchor(this_item_data['url'], li.content)
+      li.content = build_anchor(this_item_data['url'], li.content)
+      li
     end
 
     def build_image_tag(icon_filename)
-      if icon_filename.split('.').pop.casecmp('svg').zero?
+      if File.extname(icon_filename).casecmp('.svg').zero?
         build_svg(icon_filename)
       else
         build_img(icon_filename)
@@ -140,14 +141,17 @@ module JekyllIconList
     end
 
     def build_img(icon_filename)
-      img = SingleTag.new 'img', attributes: { src: icon_filename }
-      img.add_attributes @attributes['img'] if @attributes['img']
+      img = SingleTag.new 'img'
+      img.src = icon_filename
+      img.attributes << @attributes['img']
+      img
     end
 
     def build_anchor(url, content)
-      a = DoubleTag.new 'a', attributes: { href: url }, oneline: true
-      a.add_content content
-      a.add_attributes @attributes['a'] if @attributes['a']
+      a = DoubleTag.new 'a', oneline: true
+      a.href = url
+      a << content
+      a.attributes << @attributes['a']
       a
     end
   end
